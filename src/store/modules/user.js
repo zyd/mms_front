@@ -7,7 +7,13 @@ const getDefaultState = () => {
     token: getToken(),
     name: '',
     avatar: '',
-    roles: []
+    roles: [],
+    mobile: '',
+    tenantName: '',
+    email: '',
+    userType: '',
+    lastLoginTime: '',
+    lastLoginIp: ''
   }
 }
 
@@ -28,6 +34,24 @@ const mutations = {
   },
   SET_ROLES: (state, roles) => {
     state.roles = roles
+  },
+  SET_MOBILE: (state, mobile) => {
+    state.mobile = mobile
+  },
+  SET_TENANT_NAME: (state, tenantName) => {
+    state.tenantName = tenantName
+  },
+  SET_EMAIL: (state, email) => {
+    state.email = email
+  },
+  SET_USER_TYPE: (state, userType) => {
+    state.userType = userType
+  },
+  SET_LAST_LOGIN_TIME: (state, lastLoginTime) => {
+    state.lastLoginTime = lastLoginTime
+  },
+  SET_LAST_LOGIN_IP: (state, lastLoginIp) => {
+    state.lastLoginIp = lastLoginIp
   }
 }
 
@@ -36,10 +60,10 @@ const actions = {
   login({ commit }, userInfo) {
     const { username, password } = userInfo
     return new Promise((resolve, reject) => {
-      login({ username: username.trim(), password: password }).then(response => {
-        const { data } = response
-        commit('SET_TOKEN', data.token)
-        setToken(data.token)
+      login(username.trim(), password).then(response => {
+        const { token } = response
+        commit('SET_TOKEN', token)
+        setToken(token)
         resolve()
       }).catch(error => {
         reject(error)
@@ -48,25 +72,31 @@ const actions = {
   },
 
   // get user info
-  getInfo({ commit, state }) {
+  getInfo({ commit }) {
     return new Promise((resolve, reject) => {
-      getInfo(state.token).then(response => {
-        const { data } = response
+      getInfo().then(response => {
+        const data = response
 
         if (!data) {
-          reject('Verification failed, please Login again.')
+          reject('获取用户信息失败')
         }
 
-        const { roles, name, avatar } = data
+        const { roles, avatar, userName, tenantName, mobile, userType, email, lastLoginTime, lastLoginIp } = data
 
         // roles must be a non-empty array
-        if (!roles || roles.length <= 0) {
-          reject('getInfo: roles must be a non-null array!')
-        }
+        // if (!roles || roles.length <= 0) {
+        //   reject('getInfo: roles must be a non-null array!')
+        // }
 
         commit('SET_ROLES', roles)
-        commit('SET_NAME', name)
+        commit('SET_NAME', userName)
         commit('SET_AVATAR', avatar)
+        commit('SET_MOBILE', mobile)
+        commit('SET_TENANT_NAME', tenantName)
+        commit('SET_EMAIL', email)
+        commit('SET_USER_TYPE', userType)
+        commit('SET_LAST_LOGIN_TIME', lastLoginTime)
+        commit('SET_LAST_LOGIN_IP', lastLoginIp)
         resolve(data)
       }).catch(error => {
         reject(error)
