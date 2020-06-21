@@ -10,7 +10,8 @@ const state = {
 
 const mutations = {
   CHANGE_SETTING: (state, { key, value }) => {
-    if (Object.prototype.hasOwnProperty.call(state, key)) {
+    // eslint-disable-next-line no-prototype-builtins
+    if (state.hasOwnProperty(key)) {
       state[key] = value
     }
   }
